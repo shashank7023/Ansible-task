@@ -1,0 +1,19 @@
+- hosts: all
+  vars_files:
+    - "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+
+  tasks:  
+  - name: Install httpd software on Manage Node
+    package:
+      name: "{{ package_name }}"
+      state: present
+
+  - name: Copy the webpage
+    template:
+      dest: "{{ doc_root }}"
+      src: web.html
+
+  - name: Start the httpd services on Manage node
+    service:
+      name: "{{ service_name }}"
+      state: started
