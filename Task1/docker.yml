@@ -1,0 +1,44 @@
+ - hosts: 192.168.43.110
+  tasks:
+  - name: setting up docker yum conf
+    yum_repository:
+      name: docker
+      description: description for docker container
+      baseurl: https://download.docker.com/linux/centos/7/x86_64 stable/
+      gpgcheck: no
+
+  - name: Installing Docker on Target Node
+    command: "yum install docker-ce --nobest -y"
+
+  - name: Starting Docker Services in Target Node
+    service:
+            name: docker
+            state: started
+            enabled: yes
+
+  - name: Setting up the Python SDK of Docker
+    command: pip3 install docker
+
+  - name: Downloading the HTTPD image from DockerHub
+    docker_image:
+            name: httpd
+            source: pull
+
+  - name: Creating the Workspace
+    file:
+            path: /workspace
+            state: directory
+
+  - name: Creation of New File and Input of Content
+    copy:
+            dest: /workspace/web.html
+            content: docker webpage using ansible
+
+  - name: Setting up the Docker Container Image for HTTPD Image
+    docker_container:
+            name: webserver
+            image: httpd
+            state: started
+            exposed_ports: "80"
+            ports: "8082:80"
+            volumes: /workspace:/usr/local/apache2/htdocs/
